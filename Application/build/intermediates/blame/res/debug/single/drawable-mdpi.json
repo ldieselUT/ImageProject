@@ -1,18 +1,10 @@
 [
     {
-        "merged": "C:\\Users\\kalle\\AndroidStudioProjects\\ImageProject\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_launcher.png",
-        "source": "C:\\Users\\kalle\\AndroidStudioProjects\\ImageProject\\Application\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
+        "merged": "C:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_launcher.png",
+        "source": "C:\\Users\\kalle\\Documents\\android\\Application\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
     },
     {
-        "merged": "C:\\Users\\kalle\\AndroidStudioProjects\\ImageProject\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_action_info.png",
-        "source": "C:\\Users\\kalle\\AndroidStudioProjects\\ImageProject\\Application\\src\\main\\res\\drawable-mdpi\\ic_action_info.png"
-    },
-    {
-        "merged": "C:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_action_info.png",
-        "source": "C:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\src\\main\\res\\drawable-mdpi\\ic_action_info.png"
-    },
-    {
-        "merged": "C:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_launcher.png",
-        "source": "C:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
+        "merged": "C:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\res\\merged\\debug\\drawable-mdpi\\ic_action_info.png",
+        "source": "C:\\Users\\kalle\\Documents\\android\\Application\\src\\main\\res\\drawable-mdpi\\ic_action_info.png"
     }
 ]

@@ -1,4 +1,7 @@
-#Tue Oct 25 14:24:47 EEST 2016
-base.0=C\:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main
+#Tue Oct 25 17:33:03 EEST 2016
+base.0=C\:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_baa0a08ec65ba0d1bbb22c300b83efcf295700a3
+renamed.1=classes2.dex
 renamed.0=classes.dex
-file.0=C\:\\Users\\kalle\\AndroidStudioProjects\\Camera2Basic\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\1f\\main\\classes.dex
+file.1=C\:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_7cb59177cae74c9f954aa5b85881ac49bb34f06b\\classes.dex
+base.1=C\:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run_7cb59177cae74c9f954aa5b85881ac49bb34f06b
+file.0=C\:\\Users\\kalle\\Documents\\android\\Application\\build\\intermediates\\transforms\\dex\\debug\\folders\\1000\\10\\instant-run-bootstrap_baa0a08ec65ba0d1bbb22c300b83efcf295700a3\\classes.dex
