@@ -1,15 +1,42 @@
-#include <iostream> // TODO: Remove
+#include <iostream> // TODO: Remove after testing is done
 #include <string>
 
-void applyNonBlindWatermark(const std::string inputImagePath, const std::string outputImagePath, const std::string watermarkImagePath) {
-	// Output information to console; remove if done testing
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+
+void displayImage(const cv::Mat &image, const std::string &title) {
+	cv::namedWindow(title, cv::WINDOW_AUTOSIZE );
+	cv::imshow(title, image);
+	cv::waitKey(0);
+}
+
+
+cv::Mat readImageFromFile(const std::string &imagePath, const int &flags) {
+	cv::Mat image;
+	image = cv::imread(imagePath, flags);
+	if (!image.data) {
+		std::cout << "Error: Image could not be read from " << imagePath << "." << std::endl;
+		throw;
+	}
+	return image;
+}
+
+
+void applyNonBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &watermarkImagePath) {
+	// Output information to console; TODO: remove after testing is done
 	std::cout << "Non-blind watermarking:" << std::endl;
 	std::cout << "  Input:     " << inputImagePath << std::endl;
 	std::cout << "  Output:    " << outputImagePath << std::endl;
 	std::cout << "  Watermark: " << watermarkImagePath << std::endl << std::endl;
 
-	// Read input image and watermark image from file
-	// TODO
+	// Read input image and watermark images from the corresponding input files
+	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
+	cv::Mat watermarkImage = readImageFromFile(watermarkImagePath, CV_LOAD_IMAGE_GRAYSCALE);
+
+	// Display the input and watermark images; TODO: remove after testing is done
+	displayImage(inputImage, "Non-blind watermarking, input image");
+	displayImage(watermarkImage, "Non-blind watermarking, watermark image");
 
 	// Convert watermark image to grayscale
 	// TODO
@@ -21,8 +48,9 @@ void applyNonBlindWatermark(const std::string inputImagePath, const std::string 
 	// TODO
 }
 
-void applyBlindWatermark(const std::string inputImagePath, const std::string outputImagePath, const std::string message, const std::string alphabet, const unsigned int bitsUsed) {
-	// Output information to console; remove if done testing
+
+void applyBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &message, const std::string &alphabet, const unsigned int &bitsUsed) {
+	// Output information to console; TODO: remove after testing is done
 	std::cout << "Blind watermarking:" << std::endl;
 	std::cout << "  Input:     " << inputImagePath << std::endl;
 	std::cout << "  Output:    " << outputImagePath << std::endl;
@@ -31,7 +59,7 @@ void applyBlindWatermark(const std::string inputImagePath, const std::string out
 	std::cout << "  Bits used: " << bitsUsed << std::endl << std::endl;
 
 	// Read input image from file
-	// TODO
+	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Convert message into binary code based on the alphabet supplied
 	// TODO
@@ -43,15 +71,16 @@ void applyBlindWatermark(const std::string inputImagePath, const std::string out
 	// TODO
 }
 
-std::string readBlindWatermark(const std::string imagePath, const std::string alphabet, const unsigned int bitsUsed) {
-	// Output information to console; remove if done testing
+
+std::string readBlindWatermark(const std::string &imagePath, const std::string &alphabet, const unsigned int &bitsUsed) {
+	// Output information to console; TODO: remove after testing is done
 	std::cout << "Reading blind watermark:" << std::endl;
 	std::cout << "  Image:     " << imagePath << std::endl;
 	std::cout << "  Alphabet:  " << alphabet << std::endl;
 	std::cout << "  Bits used: " << bitsUsed << std::endl << std::endl;
 
 	// Read input image from file
-	// TODO
+	cv::Mat image = readImageFromFile(imagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Read binary code from image based on the number of least significant bits used
 	// TODO
@@ -64,16 +93,18 @@ std::string readBlindWatermark(const std::string imagePath, const std::string al
 	return message;
 }
 
+
+// TODO: Remove after testing is done
 int main() {
 	// Non-blind watermarking
 	applyNonBlindWatermark("image.png", "nonblind.png", "watermark.png");
 
 	// Blind watermarking
-	applyBlindWatermark("image.jpg", "blind.png", "This is copyrighted material!", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!? ", 2);
+	applyBlindWatermark("image.png", "blind.png", "This is copyrighted material!", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!? ", 2);
 
 	// Read blind watermark
-	std::cout << "Watermark:" << std::endl;
-	std::cout << readBlindWatermark("blind.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!? ", 2) << std::endl;
+	std::string watermark = readBlindWatermark("blind.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!? ", 2);
+	std::cout << "Watermark:" << watermark << std::endl;
 
 	return 0;
 }
