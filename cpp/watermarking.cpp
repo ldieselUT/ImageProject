@@ -23,6 +23,11 @@ cv::Mat readImageFromFile(const std::string &imagePath, const int &flags) {
 }
 
 
+void outputImageToFile(const std::string &imagePath, const cv::Mat &image) {
+	imwrite(imagePath, image);
+}
+
+
 void applyNonBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &watermarkImagePath) {
 	// Output information to console; TODO: remove after testing is done
 	std::cout << "Non-blind watermarking:" << std::endl;
@@ -32,7 +37,7 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 
 	// Read input image and watermark images from the corresponding input files
 	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
-	cv::Mat watermarkImage = readImageFromFile(watermarkImagePath, CV_LOAD_IMAGE_GRAYSCALE);
+	cv::Mat watermarkImage = readImageFromFile(watermarkImagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Display the input and watermark images; TODO: remove after testing is done
 	displayImage(inputImage, "Non-blind watermarking, input image");
@@ -42,10 +47,14 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 	// TODO
 
 	// Blend watermark image on input image
-	// TODO
+	cv::Mat watermarkedImage;
+	cv::addWeighted(inputImage, 1.0, watermarkImage, 0.35, 0.0, watermarkedImage);
+
+	// Display the watermarked image; TODO: remove after testing is done
+	displayImage(watermarkedImage, "Non-blind watermarking, result image");
 
 	// Write resulting image into output file
-	// TODO
+	outputImageToFile(outputImagePath, watermarkedImage);
 }
 
 
