@@ -56,6 +56,17 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 }
 
 
+unsigned int getAlphabetBinaryLength(const std::string &alphabet) {
+	unsigned int binaryLength = 1;
+	unsigned int binaryLimit = 2;
+	while (alphabet.length() > binaryLimit) {
+		binaryLength += 1;
+		binaryLimit *= 2;
+	}
+	return binaryLength;
+}
+
+
 std::string getBinary(const char &character, const std::string &alphabet, const unsigned int &binaryLength) {
 	const char* charPointer = std::strchr(alphabet.c_str(), character);
 	if (charPointer == NULL) {
@@ -106,12 +117,7 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Create alphabet associations with binary code
-	unsigned int binaryLength = 1;
-	unsigned int binaryLimit = 2;
-	while (alphabet.length() > binaryLimit) {
-		binaryLength += 1;
-		binaryLimit *= 2;
-	}
+	unsigned int binaryLength = getAlphabetBinaryLength(alphabet);
 
 	// Convert message into binary code based on the alphabet supplied
 	std::string binaryMessage = messageToBinary(message, alphabet, binaryLength);
@@ -140,22 +146,18 @@ std::string readBlindWatermark(const std::string &imagePath, const std::string &
 	cv::Mat image = readImageFromFile(imagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Create alphabet associations with binary code
-	unsigned int binaryLength = 1;
-	unsigned int binaryLimit = 2;
-	while (alphabet.length() > binaryLimit) {
-		binaryLength += 1;
-		binaryLimit *= 2;
-	}
+	unsigned int binaryLength = getAlphabetBinaryLength(alphabet);
 
 	// Read binary code from image based on the number of least significant bits used
 	std::string binaryMessage = "";
-	// TODO
+	for (unsigned int i = 0; i < image.rows; ++i) {
+		for (unsigned int j = 0; j < image.cols; ++j) {
+			// TODO
+		}
+	}
 
-	// Convert binary code to a message based on the alphabet supplied
-	std::string message = binaryToMessage(binaryMessage, alphabet, binaryLength);
-
-	// Return the message read from the image
-	return message;
+	// Convert binary code to a message based on the alphabet supplied, and return the message read from the image
+	return binaryToMessage(binaryMessage, alphabet, binaryLength);
 }
 
 
