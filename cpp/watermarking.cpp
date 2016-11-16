@@ -75,6 +75,24 @@ std::string getBinary(const char &character, const std::string &alphabet, const 
 }
 
 
+std::string messageToBinary(const std::string &message, const std::string &alphabet, const unsigned int &binaryLength) {
+	std::string binaryMessage = "";
+	for (const char &character: message) {
+		binaryMessage += getBinary(character, alphabet, binaryLength);
+	}
+	return binaryMessage;
+}
+
+
+std::string binaryToMessage(const std::string &binaryMessage, const std::string &alphabet, const unsigned int &binaryLength) {
+	std::string message = "";
+	for (unsigned int position = 0; position < binaryMessage.length(); position += binaryLength) {
+		message += alphabet.at(std::stoull(binaryMessage.substr(position, binaryLength), 0, 2));
+	}
+	return message;
+}
+
+
 void applyBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &message, const std::string &alphabet, const unsigned int &bitsUsed) {
 	// Output information to console; TODO: remove after testing is done
 	std::cout << "Blind watermarking:" << std::endl;
@@ -96,14 +114,15 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	}
 
 	// Convert message into binary code based on the alphabet supplied
-	std::string binaryMessage = "";
-	for (const char &character: message) {
-		binaryMessage += getBinary(character, alphabet, binaryLength);
-	}
+	std::string binaryMessage = messageToBinary(message, alphabet, binaryLength);
 
 	// Apply the binary code to the number of least significant bits supplied
 	cv::Mat outputImage = inputImage.clone();
-	// TODO
+	for (unsigned int i = 0; i < outputImage.rows; ++i) {
+		for (unsigned int j = 0; j < outputImage.cols; ++j) {
+			// TODO
+		}
+	}
 
 	// Write resulting image into output file
 	outputImageToFile(outputImagePath, outputImage);
@@ -120,12 +139,20 @@ std::string readBlindWatermark(const std::string &imagePath, const std::string &
 	// Read input image from file
 	cv::Mat image = readImageFromFile(imagePath, CV_LOAD_IMAGE_COLOR);
 
+	// Create alphabet associations with binary code
+	unsigned int binaryLength = 1;
+	unsigned int binaryLimit = 2;
+	while (alphabet.length() > binaryLimit) {
+		binaryLength += 1;
+		binaryLimit *= 2;
+	}
+
 	// Read binary code from image based on the number of least significant bits used
+	std::string binaryMessage = "";
 	// TODO
 
 	// Convert binary code to a message based on the alphabet supplied
-	std::string message = "";
-	// TODO
+	std::string message = binaryToMessage(binaryMessage, alphabet, binaryLength);
 
 	// Return the message read from the image
 	return message;
