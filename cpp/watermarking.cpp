@@ -1,5 +1,6 @@
 #include <iostream> // TODO: Remove after testing is done
 #include <string>
+#include <algorithm>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -28,7 +29,7 @@ void outputImageToFile(const std::string &imagePath, const cv::Mat &image) {
 }
 
 
-void applyNonBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &watermarkImagePath) {
+void applyNonBlindWatermark(const std::string &inputImagePath, const std::string &outputImagePath, const std::string &watermarkImagePath, const double &watermarkWeight) {
 	// Output information to console; TODO: remove after testing is done
 	std::cout << "Non-blind watermarking:" << std::endl;
 	std::cout << "  Input:     " << inputImagePath << std::endl;
@@ -43,18 +44,34 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 	displayImage(inputImage, "Non-blind watermarking, input image");
 	displayImage(watermarkImage, "Non-blind watermarking, watermark image");
 
-	// Convert watermark image to grayscale
-	// TODO
-
 	// Blend watermark image on input image
-	cv::Mat watermarkedImage;
-	cv::addWeighted(inputImage, 1.0, watermarkImage, 0.35, 0.0, watermarkedImage);
+	cv::Mat outputImage;
+	cv::addWeighted(inputImage, 1.0, watermarkImage, watermarkWeight, 0.0, outputImage);
 
 	// Display the watermarked image; TODO: remove after testing is done
-	displayImage(watermarkedImage, "Non-blind watermarking, result image");
+	displayImage(outputImage, "Non-blind watermarking, result image");
 
 	// Write resulting image into output file
-	outputImageToFile(outputImagePath, watermarkedImage);
+	outputImageToFile(outputImagePath, outputImage);
+}
+
+
+std::string getBinary(const char &character, const std::string &alphabet, const unsigned int &binaryLength) {
+	const char* charPointer = std::strchr(alphabet.c_str(), character);
+	if (charPointer == NULL) {
+		std::cout << "Error: Character could not be found in alphabet." << std::endl;
+		throw;
+	}
+	unsigned int position = charPointer - alphabet.c_str();
+	std::string binary;
+	do {
+		binary.push_back('0' + (position & 1));
+	} while (position >>= 1);
+	while (binary.length() < binaryLength) {
+		binary.push_back('0');
+	}
+	std::reverse(binary.begin(), binary.end());
+	return binary;
 }
 
 
@@ -70,14 +87,26 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	// Read input image from file
 	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
 
+	// Create alphabet associations with binary code
+	unsigned int binaryLength = 1;
+	unsigned int binaryLimit = 2;
+	while (alphabet.length() > binaryLimit) {
+		binaryLength += 1;
+		binaryLimit *= 2;
+	}
+
 	// Convert message into binary code based on the alphabet supplied
-	// TODO
+	std::string binaryMessage = "";
+	for (const char &character: message) {
+		binaryMessage += getBinary(character, alphabet, binaryLength);
+	}
 
 	// Apply the binary code to the number of least significant bits supplied
+	cv::Mat outputImage = inputImage.clone();
 	// TODO
 
 	// Write resulting image into output file
-	// TODO
+	outputImageToFile(outputImagePath, outputImage);
 }
 
 
@@ -106,7 +135,7 @@ std::string readBlindWatermark(const std::string &imagePath, const std::string &
 // TODO: Remove after testing is done
 int main() {
 	// Non-blind watermarking
-	applyNonBlindWatermark("image.png", "nonblind.png", "watermark.png");
+	applyNonBlindWatermark("image.png", "nonblind.png", "watermark.png", 0.35);
 
 	// Blind watermarking
 	applyBlindWatermark("image.png", "blind.png", "This is copyrighted material!", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!? ", 2);
