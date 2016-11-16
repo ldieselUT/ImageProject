@@ -49,7 +49,7 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 	cv::addWeighted(inputImage, 1.0, watermarkImage, watermarkWeight, 0.0, outputImage);
 
 	// Display the watermarked image; TODO: remove after testing is done
-	displayImage(outputImage, "Non-blind watermarking, result image");
+	displayImage(outputImage, "Non-blind watermarking, output image");
 
 	// Write resulting image into output file
 	outputImageToFile(outputImagePath, outputImage);
@@ -116,19 +116,43 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	// Read input image from file
 	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
 
+	// Display the input image; TODO: remove after testing is done
+	displayImage(inputImage, "Blind watermarking, input image");
+
 	// Create alphabet associations with binary code
 	unsigned int binaryLength = getAlphabetBinaryLength(alphabet);
 
 	// Convert message into binary code based on the alphabet supplied
 	std::string binaryMessage = messageToBinary(message, alphabet, binaryLength);
 
+	// Repeat message until it fills the amount of bits added to the image
+	unsigned int bitsInImage = inputImage.rows * inputImage.cols * 3 * bitsUsed;
+	while (binaryMessage.length() < bitsInImage) {
+		binaryMessage += binaryMessage;
+	}
+	binaryMessage = binaryMessage.substr(0, bitsInImage);
+
 	// Apply the binary code to the number of least significant bits supplied
+	// TODO: Optimise and/or parallelise, because this takes a lot of time...
 	cv::Mat outputImage = inputImage.clone();
-	for (unsigned int i = 0; i < outputImage.rows; ++i) {
-		for (unsigned int j = 0; j < outputImage.cols; ++j) {
-			// TODO
+	for (unsigned int i = 0; i < outputImage.rows && binaryMessage.length() > 0; ++i) {
+		for (unsigned int j = 0; j < outputImage.cols && binaryMessage.length() > 0; ++j) {
+			for (unsigned int k = 0; k < 3 && binaryMessage.length() > 0; ++k) {
+				std::string substitutedValue = binaryMessage.substr(0, bitsUsed);
+				binaryMessage.erase(0, bitsUsed);
+				unsigned int value = outputImage.at<cv::Vec3b>(i, j)[k];
+				value >>= bitsUsed;
+				for (unsigned int l = 0; l < bitsUsed; ++l) {
+					value <<= 1;
+					value |= substitutedValue.at(l) - '0';
+				}
+				outputImage.at<cv::Vec3b>(i, j)[k] = value;
+			}
 		}
 	}
+
+	// Display the watermarked image; TODO: remove after testing is done
+	displayImage(outputImage, "Blind watermarking, output image");
 
 	// Write resulting image into output file
 	outputImageToFile(outputImagePath, outputImage);
