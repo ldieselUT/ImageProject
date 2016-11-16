@@ -41,15 +41,15 @@ void applyNonBlindWatermark(const std::string &inputImagePath, const std::string
 	cv::Mat watermarkImage = readImageFromFile(watermarkImagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Display the input and watermark images; TODO: remove after testing is done
-	displayImage(inputImage, "Non-blind watermarking, input image");
-	displayImage(watermarkImage, "Non-blind watermarking, watermark image");
+	//displayImage(inputImage, "Non-blind watermarking, input image");
+	//displayImage(watermarkImage, "Non-blind watermarking, watermark image");
 
 	// Blend watermark image on input image
 	cv::Mat outputImage;
 	cv::addWeighted(inputImage, 1.0, watermarkImage, watermarkWeight, 0.0, outputImage);
 
 	// Display the watermarked image; TODO: remove after testing is done
-	displayImage(outputImage, "Non-blind watermarking, output image");
+	//displayImage(outputImage, "Non-blind watermarking, output image");
 
 	// Write resulting image into output file
 	outputImageToFile(outputImagePath, outputImage);
@@ -67,17 +67,11 @@ unsigned int getAlphabetBinaryLength(const std::string &alphabet) {
 }
 
 
-std::string getBinary(const char &character, const std::string &alphabet, const unsigned int &binaryLength) {
-	const char* charPointer = std::strchr(alphabet.c_str(), character);
-	if (charPointer == NULL) {
-		std::cout << "Error: Character could not be found in alphabet." << std::endl;
-		throw;
-	}
-	unsigned int position = charPointer - alphabet.c_str();
+std::string getIntBinary(unsigned int value, const unsigned int &binaryLength) {
 	std::string binary;
 	do {
-		binary.push_back('0' + (position & 1));
-	} while (position >>= 1);
+		binary.push_back('0' + (value & 1));
+	} while (value >>= 1);
 	while (binary.length() < binaryLength) {
 		binary.push_back('0');
 	}
@@ -86,10 +80,20 @@ std::string getBinary(const char &character, const std::string &alphabet, const 
 }
 
 
+std::string getCharacterBinary(const char &character, const std::string &alphabet, const unsigned int &binaryLength) {
+	const char* charPointer = std::strchr(alphabet.c_str(), character);
+	if (charPointer == NULL) {
+		std::cout << "Error: Character could not be found in alphabet." << std::endl;
+		throw;
+	}
+	return getIntBinary(charPointer - alphabet.c_str(), binaryLength);
+}
+
+
 std::string messageToBinary(const std::string &message, const std::string &alphabet, const unsigned int &binaryLength) {
 	std::string binaryMessage = "";
 	for (const char &character: message) {
-		binaryMessage += getBinary(character, alphabet, binaryLength);
+		binaryMessage += getCharacterBinary(character, alphabet, binaryLength);
 	}
 	return binaryMessage;
 }
@@ -117,7 +121,7 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	cv::Mat inputImage = readImageFromFile(inputImagePath, CV_LOAD_IMAGE_COLOR);
 
 	// Display the input image; TODO: remove after testing is done
-	displayImage(inputImage, "Blind watermarking, input image");
+	//displayImage(inputImage, "Blind watermarking, input image");
 
 	// Create alphabet associations with binary code
 	unsigned int binaryLength = getAlphabetBinaryLength(alphabet);
@@ -152,7 +156,7 @@ void applyBlindWatermark(const std::string &inputImagePath, const std::string &o
 	}
 
 	// Display the watermarked image; TODO: remove after testing is done
-	displayImage(outputImage, "Blind watermarking, output image");
+	//displayImage(outputImage, "Blind watermarking, output image");
 
 	// Write resulting image into output file
 	outputImageToFile(outputImagePath, outputImage);
@@ -172,16 +176,32 @@ std::string readBlindWatermark(const std::string &imagePath, const std::string &
 	// Create alphabet associations with binary code
 	unsigned int binaryLength = getAlphabetBinaryLength(alphabet);
 
+	// Create mask for retrieving bits
+	unsigned int mask = 1;
+	for (unsigned int i = 0; i < bitsUsed; ++i) {
+		mask *= 2;
+	}
+	mask -= 1;
+
 	// Read binary code from image based on the number of least significant bits used
 	std::string binaryMessage = "";
 	for (unsigned int i = 0; i < image.rows; ++i) {
 		for (unsigned int j = 0; j < image.cols; ++j) {
-			// TODO
+			for (unsigned int k = 0; k < 3; ++k) {
+				binaryMessage += getIntBinary(image.at<cv::Vec3b>(i, j)[k] & mask, bitsUsed);
+			}
 		}
 	}
 
-	// Convert binary code to a message based on the alphabet supplied, and return the message read from the image
-	return binaryToMessage(binaryMessage, alphabet, binaryLength);
+	// Convert binary code to a message based on the alphabet supplied
+	std::string message = binaryToMessage(binaryMessage, alphabet, binaryLength);
+
+	// Find the longest repeated substring
+	message.pop_back();
+	// TODO
+
+	// Return the message read from the image
+	return message;
 }
 
 
