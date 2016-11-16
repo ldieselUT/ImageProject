@@ -1,6 +1,5 @@
 CC=g++
-#CFLAGS+=-g
-CFLAGS+=`pkg-config --cflags opencv`
+CFLAGS+=`pkg-config --cflags opencv` -std=c++11
 LDFLAGS+=`pkg-config --libs opencv`
 
 PROG=watermarking
