@@ -79,4 +79,24 @@
         android:id="@+id/textView"
         android:layout_toLeftOf="@+id/view"
         android:layout_toStartOf="@+id/view" />
+
+    <Button
+        android:text="Select Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/view"
+        android:layout_alignStart="@+id/view"
+        android:id="@+id/watermarkTextButton"
+        android:onClick="selectText" />
+
+    <Button
+        android:text="Decode Image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/decodeButton"
+        android:layout_below="@+id/watermarkOpacitySeekBar"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:onClick="decodeImage" />
 </RelativeLayout>
