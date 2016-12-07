@@ -5,6 +5,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -13,8 +14,10 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Core;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -23,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -39,9 +43,14 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -157,7 +166,32 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     public void takePicture(View view) {
         Bitmap bmp = Bitmap.createBitmap(current_frame.cols(), current_frame.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(current_frame, bmp);
+
+        Date today = Calendar.getInstance().getTime();
+
+        // (2) create a date "formatter" (the date format we want)
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-hh.mm.ss");
+
+        // (3) create a new String using the date format we want
+        String folderName = formatter.format(today);
+        if (useInvisibleWatermark.isChecked()) {
+            //todo:write code here to add watermark;
+            Log.d("savePng", "save as invisible");
+            //  Get path to new gallery image
+            Uri path = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new ContentValues());
+            SaveImage (current_frame.clone());
+
+        }else {
+            Log.d("savePng", "save as visible");
+            Utils.matToBitmap(current_frame, bmp);
+            String imageUrl = MediaStore.Images.Media.insertImage(getContentResolver(), bmp, folderName, "");
+        }
+
+    }
+
+    public void SaveImage (Mat mat) {
+        Mat mIntermediateMat = new Mat();
+
         Date today = Calendar.getInstance().getTime();
 
         // (2) create a date "formatter" (the date format we want)
@@ -166,8 +200,21 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
         // (3) create a new String using the date format we want
         String folderName = formatter.format(today);
 
-        MediaStore.Images.Media.insertImage(getContentResolver(), bmp, folderName, "");
+        Imgproc.cvtColor(current_frame.clone(), mIntermediateMat, Imgproc.COLOR_RGBA2BGR, 3);
+        mIntermediateMat = addWatermark(mIntermediateMat, "  <-- HEY MAN! dont steal my stuff -->  ");
 
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String filename = folderName+".png";
+        File file = new File(path, filename);
+
+        Boolean bool = null;
+        filename = file.toString();
+        bool = Imgcodecs.imwrite(filename, mIntermediateMat);
+
+        if (bool == true)
+            Log.d(TAG, "SUCCESS writing image to external storage");
+        else
+            Log.d(TAG, "Fail writing image to external storage");
     }
 
     private static final int SELECT_PICTURE = 1;
@@ -223,5 +270,42 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
                 }
             }
         }
+    }
+
+    char[] messageArray(String message, int imgLen){
+        char[] messageArray = message.toCharArray();
+        message = "";
+
+        // convert the input string into a binary string
+        for(int i = 0; i < messageArray.length; i++){
+            String binChar = Integer.toBinaryString(messageArray[i]);
+            message = message.concat(String.format("%7s", binChar).replace(' ', '0'));
+        }
+
+        // fill image with message
+        while(message.length() < imgLen)
+            message = message.concat(message);
+
+        // cut string to correct size
+        message = message.substring(0, imgLen);
+        return message.toCharArray();
+    }
+
+    Mat addWatermark(Mat img, String message){
+        long size = img.cols() * img.rows() * img.elemSize();
+        char[] byteMask = messageArray(message, (int)size);
+        // mask to add hidden watermark
+
+        Mat matMask = new Mat(img.rows(),img.cols(), img.type());
+        matMask.put(0, 0, new String(byteMask).getBytes());
+
+        // mask out only last bits
+        Mat m2 = new Mat(img.rows(), img.cols(), img.type(), new Scalar(0x7,0x7,0x7));
+        Mat clearMask = new Mat(img.rows(), img.cols(), img.type(), new Scalar(0xfe,0xfe,0xfe));
+        Core.bitwise_and(matMask, m2, matMask);
+
+        Core.bitwise_and(img, clearMask, img);
+        Core.bitwise_or(img, matMask, img);
+        return img;
     }
 }
