@@ -27,6 +27,7 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -217,7 +218,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
         Boolean bool = null;
         filename = file.toString();
+
         bool = Imgcodecs.imwrite(filename, mIntermediateMat);
+        // update gallery with image
+        Intent mediaScanIntent = new Intent(
+                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(file); //out is your output file
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+
 
         if (bool == true)
             Log.d(TAG, "SUCCESS writing image to external storage");
@@ -332,7 +341,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
     Mat addWatermark(Mat img, String message){
         long size = img.cols() * img.rows() * img.elemSize();
-        char[] byteMask = messageArray(message, (int)size);
+        char[] byteMask = messageArray(message+"\n", (int)size);
         // mask to add hidden watermark
 
         Mat matMask = new Mat(img.rows(),img.cols(), img.type());
